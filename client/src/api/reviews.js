@@ -8,6 +8,10 @@ export const createReview = (data) => {
   return api.post("/api/reviews", data);
 };
 
+export const getSafetyReviews = (params = {}) => {
+  return api.get("/api/safety-reviews", { params });
+};
+
 export const createSafetyReview = (data) => {
   return api.post("/api/safety-reviews", data);
 };

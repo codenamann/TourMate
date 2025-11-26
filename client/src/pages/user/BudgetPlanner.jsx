@@ -126,20 +126,50 @@ const BudgetPlanner = () => {
             <CardDescription>Based on your budget and preferences</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-4 max-h-[600px] overflow-y-auto">
               {recommendations.length > 0 ? (
                 recommendations.map((rec, index) => (
-                  <div key={index} className="border border-border rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-2">
+                  <div key={rec.city?._id || index} className="border border-border rounded-lg p-4 hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center gap-2 mb-3">
                       <MapPin className="w-5 h-5 text-accent" />
                       <h3 className="font-semibold">{rec.city?.name || `City ${index + 1}`}</h3>
+                      {rec.city?.state && (
+                        <span className="text-xs text-muted-foreground">, {rec.city.state}</span>
+                      )}
                     </div>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      Estimated cost: ₹{rec.estimatedCost?.toFixed(0) || "N/A"}
-                    </p>
+                    <div className="space-y-2 mb-3">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Estimated Cost:</span>
+                        <span className="font-semibold">₹{rec.estimatedCost?.toLocaleString() || "N/A"}</span>
+                      </div>
+                      {rec.dailyBudget && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Daily Budget:</span>
+                          <span>₹{rec.dailyBudget?.toLocaleString()}</span>
+                        </div>
+                      )}
+                      {rec.estimatedTransport && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Transport:</span>
+                          <span>₹{rec.estimatedTransport?.toLocaleString()}</span>
+                        </div>
+                      )}
+                    </div>
+                    {rec.breakdown && (
+                      <div className="text-xs text-muted-foreground mb-3 space-y-1">
+                        <div>Stay: ₹{rec.breakdown.stay?.toLocaleString()}</div>
+                        <div>Food: ₹{rec.breakdown.food?.toLocaleString()}</div>
+                        <div>Travel: ₹{rec.breakdown.travel?.toLocaleString()}</div>
+                        <div>Misc: ₹{rec.breakdown.misc?.toLocaleString()}</div>
+                      </div>
+                    )}
                     <div className="flex gap-2">
-                      <Badge variant="secondary">Budget-friendly</Badge>
-                      <Badge variant="outline">Popular</Badge>
+                      <Badge 
+                        variant={rec.affordability === "affordable" ? "default" : "destructive"}
+                        className="text-xs"
+                      >
+                        {rec.affordability === "affordable" ? "Within Budget" : "Over Budget"}
+                      </Badge>
                     </div>
                   </div>
                 ))

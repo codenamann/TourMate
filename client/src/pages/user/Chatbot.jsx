@@ -8,11 +8,30 @@ import { MessageCircle, Send } from "lucide-react"
 
 const Chatbot = () => {
   const [message, setMessage] = useState("")
-  const [messages] = useState([
-    { id: 1, role: "assistant", content: "Hello! I'm your TourMate assistant. How can I help you plan your trip today?" },
-    { id: 2, role: "user", content: "I'm looking for budget-friendly destinations in India." },
-    { id: 3, role: "assistant", content: "Great! I can help you find budget-friendly destinations. Some popular options include..." },
+  const [messages, setMessages] = useState([
+    { id: 1, role: "assistant", content: "Hello! I'm your TourMate assistant. How can I help you plan your trip today? Note: Gemini AI integration is coming soon." },
   ])
+  const [loading, setLoading] = useState(false)
+
+  const handleSend = async () => {
+    if (!message.trim()) return
+    
+    const userMessage = { id: Date.now(), role: "user", content: message }
+    setMessages(prev => [...prev, userMessage])
+    setMessage("")
+    setLoading(true)
+
+    // TODO: Integrate with Gemini API
+    setTimeout(() => {
+      const assistantMessage = {
+        id: Date.now() + 1,
+        role: "assistant",
+        content: "I'm sorry, but the Gemini AI integration is not yet available. Please use the Budget Planner or Explore pages to plan your trip."
+      }
+      setMessages(prev => [...prev, assistantMessage])
+      setLoading(false)
+    }, 1000)
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -22,7 +41,7 @@ const Chatbot = () => {
           Chatbot Assistant
         </h1>
         <p className="text-muted-foreground">
-          Get travel assistance powered by Gemini AI
+          Get travel assistance powered by Gemini AI (Coming Soon)
         </p>
       </div>
 
@@ -73,11 +92,17 @@ const Chatbot = () => {
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault()
-                  // Handle send
+                  handleSend()
                 }
               }}
+              disabled={loading}
             />
-            <Button size="icon" className="h-[80px] w-[80px]">
+            <Button 
+              size="icon" 
+              className="h-[80px] w-[80px]"
+              onClick={handleSend}
+              disabled={loading || !message.trim()}
+            >
               <Send className="w-5 h-5" />
             </Button>
           </div>

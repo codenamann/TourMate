@@ -1,0 +1,11 @@
+/* Prevent Leaflet map from overlapping dialog UI */
+.leaflet-container,
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom,
+.leaflet-control,
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+  z-index: 0 !important;
+}
+

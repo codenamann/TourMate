@@ -2,19 +2,24 @@ import { useState, useEffect } from "react"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Compass, MapPin, Star } from "lucide-react"
+import { MapPin, Star } from "lucide-react"
 import { Link } from "react-router-dom"
 import { getDestinations } from "@/api/destinations"
 
 const Home = () => {
   const [destinations, setDestinations] = useState([])
+  const [hiddenGems, setHiddenGems] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await getDestinations({ category: "destination" })
-        setDestinations(response.data.slice(0, 3))
+        const [destRes, gemsRes] = await Promise.all([
+          getDestinations({ category: "destination" }),
+          getDestinations({ category: "hidden_gem" })
+        ])
+        setDestinations(destRes.data.slice(0, 3))
+        setHiddenGems(gemsRes.data.slice(0, 4))
       } catch (error) {
         console.error("Error fetching destinations:", error)
       } finally {
@@ -57,8 +62,12 @@ const Home = () => {
           ) : destinations.length > 0 ? (
             destinations.map((dest) => (
               <Card key={dest._id} className="overflow-hidden">
-                <div className="h-48 bg-muted flex items-center justify-center">
-                  <MapPin className="w-12 h-12 text-muted-foreground" />
+                <div className="h-48 bg-muted flex items-center justify-center overflow-hidden">
+                  {dest.images && dest.images.length > 0 ? (
+                    <img src={dest.images[0]} alt={dest.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <MapPin className="w-12 h-12 text-muted-foreground" />
+                  )}
                 </div>
                 <CardHeader>
                   <CardTitle>{dest.name}</CardTitle>
@@ -66,12 +75,20 @@ const Home = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center gap-2 mb-4">
-                    <Star className="w-4 h-4 fill-accent text-accent" />
-                    <span className="text-sm">4.5</span>
-                    <Badge variant="secondary" className="ml-2">
+                    <Badge variant="secondary">
                       {dest.category === "hidden_gem" ? "Hidden Gem" : "Popular"}
                     </Badge>
+                    {dest.cityId?.stateId?.name && (
+                      <Badge variant="outline" className="text-xs">
+                        {dest.cityId.stateId.name}
+                      </Badge>
+                    )}
                   </div>
+                  {dest.description && (
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                      {dest.description}
+                    </p>
+                  )}
                   <Button asChild variant="outline" className="w-full">
                     <Link to={`/destination/${dest._id}`}>View Details</Link>
                   </Button>
@@ -84,23 +101,41 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Popular Spots */}
+      {/* Hidden Gems Section */}
       <section>
-        <h2 className="text-2xl font-bold text-foreground mb-6">Popular Spots</h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-foreground">Hidden Gems</h2>
+          <Button asChild variant="ghost">
+            <Link to="/explore?category=hidden_gem">View All</Link>
+          </Button>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((item) => (
-            <Card key={item}>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <Compass className="w-5 h-5 text-accent" />
-                  <CardTitle className="text-lg">Spot {item}</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">Popular travel destination</p>
-              </CardContent>
-            </Card>
-          ))}
+          {loading ? (
+            <div className="col-span-4 text-center py-8 text-muted-foreground">Loading...</div>
+          ) : hiddenGems.length > 0 ? (
+            hiddenGems.map((dest) => (
+                <Card key={dest._id} className="overflow-hidden">
+                  <div className="h-32 bg-muted flex items-center justify-center">
+                    {dest.images && dest.images.length > 0 ? (
+                      <img src={dest.images[0]} alt={dest.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <MapPin className="w-8 h-8 text-muted-foreground" />
+                    )}
+                  </div>
+                  <CardHeader>
+                    <CardTitle className="text-lg">{dest.name}</CardTitle>
+                    <CardDescription>{dest.cityId?.name || "India"}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button asChild variant="outline" size="sm" className="w-full">
+                      <Link to={`/destination/${dest._id}`}>Explore</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))
+          ) : (
+            <div className="col-span-4 text-center py-8 text-muted-foreground">No hidden gems found</div>
+          )}
         </div>
       </section>
     </div>

@@ -1,9 +1,13 @@
-import { Link, useLocation, Outlet } from 'react-router-dom'
-import { Home, Map, Compass, Hotel, Wallet, Calendar, User, MessageCircle } from 'lucide-react'
+import { Link, useLocation, Outlet, useNavigate } from 'react-router-dom'
+import { Home, Map, Compass, Hotel, Wallet, Calendar, User, MessageCircle, LogOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/context/AuthContext'
+import { Button } from '@/components/ui/button'
 
 const UserLayout = () => {
   const location = useLocation()
+  const navigate = useNavigate()
+  const { user, logout, isAuthenticated } = useAuth()
 
   const navItems = [
     { path: '/', icon: Home, label: 'Home' },
@@ -13,7 +17,6 @@ const UserLayout = () => {
     { path: '/itinerary', icon: Calendar, label: 'Itinerary' },
     { path: '/map', icon: Map, label: 'Map' },
     { path: '/chat', icon: MessageCircle, label: 'Chat' },
-    { path: '/profile', icon: User, label: 'Profile' },
   ]
 
   const bottomNavItems = [
@@ -66,6 +69,61 @@ const UserLayout = () => {
                   </Link>
                 )
               })}
+              {isAuthenticated ? (
+                <>
+                  <Link
+                    to="/profile"
+                    className={cn(
+                      "px-4 py-2 rounded-md text-sm font-medium transition-colors",
+                      isActive("/profile")
+                        ? "bg-accent text-accent-foreground"
+                        : "text-primary-foreground/80 hover:bg-accent hover:text-accent-foreground"
+                    )}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <User className="w-4 h-4" />
+                      <span>{user?.name || "Profile"}</span>
+                    </div>
+                  </Link>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      logout()
+                      navigate("/")
+                    }}
+                    className="text-primary-foreground/80 hover:bg-accent hover:text-accent-foreground"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    className={cn(
+                      "px-4 py-2 rounded-md text-sm font-medium transition-colors",
+                      isActive("/login")
+                        ? "bg-accent text-accent-foreground"
+                        : "text-primary-foreground/80 hover:bg-accent hover:text-accent-foreground"
+                    )}
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/register"
+                    className={cn(
+                      "px-4 py-2 rounded-md text-sm font-medium transition-colors",
+                      isActive("/register")
+                        ? "bg-accent text-accent-foreground"
+                        : "text-primary-foreground/80 hover:bg-accent hover:text-accent-foreground"
+                    )}
+                  >
+                    Register
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

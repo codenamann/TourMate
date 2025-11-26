@@ -16,7 +16,39 @@ export const getReviews = async (req, res) => {
 
 export const createReview = async (req, res) => {
   try {
-    const review = new Review(req.body);
+    // Use userId from authenticated user, not from request body
+    const { targetType, targetId, rating, comment } = req.body;
+    
+    if (!targetType || !targetId || !rating) {
+      return res.status(400).json({ message: "targetType, targetId, and rating are required" });
+    }
+
+    // Check for duplicate review (same user, same target)
+    const existingReview = await Review.findOne({
+      userId: req.user.id,
+      targetType,
+      targetId
+    });
+
+    if (existingReview) {
+      return res.status(400).json({ 
+        message: "You have already submitted a review for this item" 
+      });
+    }
+
+    // Validate rating
+    if (rating < 1 || rating > 5) {
+      return res.status(400).json({ message: "Rating must be between 1 and 5" });
+    }
+
+    const review = new Review({
+      userId: req.user.id,
+      targetType,
+      targetId,
+      rating,
+      comment: comment || ""
+    });
+    
     await review.save();
     res.status(201).json(review);
   } catch (error) {

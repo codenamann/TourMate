@@ -12,11 +12,13 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/context/AuthContext'
 
 const AdminLayout = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { logout } = useAuth()
 
   const menuItems = [
     { path: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -30,8 +32,8 @@ const AdminLayout = () => {
   const isActive = (path) => location.pathname === path
 
   const handleLogout = () => {
-    // TODO: Implement logout logic
-    navigate('/')
+    logout()
+    navigate('/admin/login')
   }
 
   return (

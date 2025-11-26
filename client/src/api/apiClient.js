@@ -8,14 +8,11 @@ const api = axios.create({
   }
 });
 
-// Request interceptor
+// Request interceptor - token is now handled by AuthContext setting default headers
 api.interceptors.request.use(
   (config) => {
-    // TODO: Add JWT token if available
-    // const token = localStorage.getItem("token");
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
+    // Token is automatically added via api.defaults.headers.common["Authorization"]
+    // which is set by AuthContext
     return config;
   },
   (error) => {
@@ -28,9 +25,27 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     // Handle errors globally
+    const errorMessage = error.response?.data?.message || error.message || "An error occurred";
+    
     if (error.response?.status === 401) {
-      // TODO: Handle unauthorized
+      // Clear invalid token
+      const token = localStorage.getItem("tm_token");
+      if (token) {
+        localStorage.removeItem("tm_token");
+        delete api.defaults.headers.common["Authorization"];
+        // Redirect will be handled by ProtectedRoute components
+      }
+      console.error("Unauthorized access");
     }
+    
+    // Log error for debugging
+    console.error("API Error:", {
+      url: error.config?.url,
+      method: error.config?.method,
+      status: error.response?.status,
+      message: errorMessage
+    });
+    
     return Promise.reject(error);
   }
 );

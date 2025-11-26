@@ -5,23 +5,26 @@ const citySchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  state: {
-    type: String,
+  stateId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "State",
     required: true
   },
-  coordinates: {
-    lat: {
-      type: Number,
-      required: true
-    },
-    lng: {
-      type: Number,
-      required: true
-    }
+  latitude: {
+    type: Number,
+    default: null
+  },
+  longitude: {
+    type: Number,
+    default: null
   }
 }, {
   timestamps: true
 });
+
+// Index for search performance
+citySchema.index({ name: "text" });
+citySchema.index({ stateId: 1 });
 
 export default mongoose.model("City", citySchema);
 

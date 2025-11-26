@@ -1,4 +1,5 @@
 import express from "express";
+import { authRequired } from "../middleware/authMiddleware.js";
 import {
   getSafetyReviews,
   createSafetyReview
@@ -7,7 +8,7 @@ import {
 const router = express.Router();
 
 router.get("/", getSafetyReviews);
-router.post("/", createSafetyReview);
+router.post("/", authRequired, createSafetyReview);
 
 export default router;
 

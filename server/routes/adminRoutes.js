@@ -1,5 +1,6 @@
 import express from "express";
 import { adminAuth } from "../middleware/adminAuth.js";
+import upload from "../config/multer.js";
 import {
   createDestination,
   updateDestination,
@@ -30,8 +31,8 @@ router.get("/destinations", async (req, res) => {
   const { getDestinations } = await import("../controllers/destinationController.js");
   return getDestinations(req, res);
 });
-router.post("/destinations", createDestination);
-router.put("/destinations/:id", updateDestination);
+router.post("/destinations", upload.array("images", 5), createDestination);
+router.put("/destinations/:id", upload.array("images", 5), updateDestination);
 router.delete("/destinations/:id", deleteDestination);
 
 // Hotels
@@ -39,14 +40,14 @@ router.get("/hotels", async (req, res) => {
   const { getHotels } = await import("../controllers/hotelController.js");
   return getHotels(req, res);
 });
-router.post("/hotels", createHotel);
-router.put("/hotels/:id", updateHotel);
+router.post("/hotels", upload.array("images", 5), createHotel);
+router.put("/hotels/:id", upload.array("images", 5), updateHotel);
 router.delete("/hotels/:id", deleteHotel);
 
 // Hidden Gems
 router.get("/hidden-gems", getHiddenGems);
-router.post("/hidden-gems", createDestination);
-router.put("/hidden-gems/:id", updateDestination);
+router.post("/hidden-gems", upload.array("images", 5), createDestination);
+router.put("/hidden-gems/:id", upload.array("images", 5), updateDestination);
 router.delete("/hidden-gems/:id", deleteDestination);
 
 // Reviews
@@ -55,7 +56,7 @@ router.put("/reviews/:id", updateReview);
 router.delete("/reviews/:id", deleteReview);
 
 // Map creation
-router.post("/map/create", createMapPin);
+router.post("/map/create", upload.array("images", 5), createMapPin);
 
 export default router;
 
