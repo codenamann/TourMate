@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.,
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json"
@@ -26,7 +26,7 @@ api.interceptors.response.use(
   (error) => {
     // Handle errors globally
     const errorMessage = error.response?.data?.message || error.message || "An error occurred";
-    
+
     if (error.response?.status === 401) {
       // Clear invalid token
       const token = localStorage.getItem("tm_token");
@@ -37,7 +37,7 @@ api.interceptors.response.use(
       }
       console.error("Unauthorized access");
     }
-    
+
     // Log error for debugging
     console.error("API Error:", {
       url: error.config?.url,
@@ -45,7 +45,7 @@ api.interceptors.response.use(
       status: error.response?.status,
       message: errorMessage
     });
-    
+
     return Promise.reject(error);
   }
 );
